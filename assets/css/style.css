@@ -1,3 +1,23 @@
 .bg-custom-2 {
     background-image: linear-gradient(15deg, #2656d8 0%, #360586 100%);
     }
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.section {
+    display: flex;
+    flex-wrap: nowrap;
+}
+aside {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+}
+
