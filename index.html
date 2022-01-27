@@ -13,7 +13,7 @@
         <h1>Weather Dashboard</h1>
     </header>
 
-    <div class="row p-1 m-1 section"> 
+    <div class="row p-1 m-1 section">
         <aside class="col-3">
             <h2>Search for a City:</h2>
             <form id="userCityInput">
@@ -21,21 +21,12 @@
                 <button onclick="geoData()" type="button" class="btn btn-primary col-12" id="citySearchButton">Search</button>
             </form>
             <hr>
-            <div class = "col-9" id="citySearchHistory"></div>
+            <div id="citySearchHistory"></div>
         </aside>
 
-        <main>
-            <div id="cityForecast">
-               <!-- <div id="cityName">City:</div>
-               <div class="temperature">Temperature:</div>
-                <div class="wind">Wind:</div>
-                <div class="humidity">Humidity:</div>
-                <div class="uvIndex">UV Index:</div> -->
-            </div>
-
-            <div id="fiveDayForecast">
-              
-            </div>
+        <main class = "col-9" >
+            <div id="cityForecast"></div>
+            <div id="fiveDayForecast"></div>
         </main>
     </div>
    
