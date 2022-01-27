@@ -4,11 +4,25 @@ var citySearchButton = document.querySelector("#citySeachButton");
 var citySearchHistory = document.querySelector("#citySeachHistory");
 var cityForecast = document.querySelector("#cityForecast");
 var fiveDayForecast = document.querySelector("#fiveDayForecast");
-var cityHistory = [];
+var cityHistory = JSON.parse(localStorage.getItem("cityHistory")) || [];
 var flexboxDisplay = "display:flex; justify-content: space-between";
 var cardBackground = "background-image: linear-gradient(#001133, #001a4d); color: white; ";
-
 var apiKey = "cc874990616c1e1cfc8aa38e558fbd96" + "&units=imperial";
+
+var formSubmit = function(event){
+    event.preventDefault();
+
+    var cityName = cityNameEl.value.trim();
+    if(cityName) {
+        geoData(cityName);
+        console.log(cityName)
+        cityHistory.push(cityName)
+        localStorage.setItem("cityHistory", JSON.stringify(cityHistory))
+    } else {
+        alert("Please enter a valid city name");
+    }
+}
+
 
 function geoData() {
     var cityName = document.getElementById('cityName');
