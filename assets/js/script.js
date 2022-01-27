@@ -11,7 +11,7 @@ var apiKey = "cc874990616c1e1cfc8aa38e558fbd96" + "&units=imperial";
 function geoData() {
     var cityName = document.getElementById('cityName');
 
-    var geoUrl = "http://api.openweathermap.org/data/2.5/weather?q=" + cityName.value + "&appid=" + apiKey
+    var geoUrl = "http://api.openweathermap.org/data/2.5/weather?q=" + cityNameEl.value + "&appid=" + apiKey
 
     fetch(geoUrl) 
         .then(function(response){
@@ -42,6 +42,39 @@ function getCityWeatherData(latitude, longtitude){
     })
     .then(function(data){
         console.log(data);
+        renderCityForecast(data)
     })
+    
+    var uviIndexColor = " "
+    var renderCityForecast = function (cityData){
+        forecast = `<div class="p-1 m-3 border border-dark rounded">
+        <h3>${cityNameEl.value + " " + moment.unix(cityData.current.dt).format("MM/DD/YYYY")}</h3>
+        <p>${"Temp: " + cityData.current.temp + "°F"}</p>
+        <p>${"Wind: " + cityData.current.wind_speed+ " MPH"}</p>
+        <p>${"Humidity: " + cityData.current.humidity + "%"}</p>
+        <p class = "bg-${uviIndexColor}">${"UV Index: " + cityData.current.uvi}</p>
+        </div>`
+        
+        console.log(cityNameEl.value);
+        console.log(moment.unix(cityData.current.dt).format("MM/DD/YYYY"));
+        console.log(cityData.current.temp);  
+        console.log(cityData.current.wind_speed);  
+        console.log(cityData.current.humidity);  
+        console.log(cityData.current.uvi);  
+        
+        if (cityData.current.uvi <=2){
+            uviIndexColor = "#008000"
+        } else if (cityData.current.uvi <=5){
+            uviIndexColor = "warning"
+        }else if (cityData.current.uvi <=7){
+            uviIndexColor = "#ffa500"
+        } else if (cityData.current.uvi <=10){
+            uviIndexColor = "danger"
+        } else if (cityData.current.uvi >10){
+            uviIndexColor = "#800080"
+        }
+        cityForecast.innerHTML = forecast
+        cityNameEl.value = " ";
+    }
 }
 
