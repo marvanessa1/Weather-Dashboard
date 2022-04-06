@@ -5,15 +5,15 @@ var citySearchHistory = document.querySelector("#citySeachHistory");
 var cityForecast = document.querySelector("#cityForecast");
 var fiveDayForecast = document.querySelector("#fiveDayForecast");
 var cityHistory = JSON.parse(localStorage.getItem("cityHistory")) || [];
-var flexboxDisplay = "display:flex; justify-content: space-between";
 var cardBackground = "background-image: linear-gradient(#001133, #001a4d); color: white; ";
+var forecastStyle = "display:flex, justify-content: space-between "
 var apiKey = "cc874990616c1e1cfc8aa38e558fbd96" + "&units=imperial";
 
-var formSubmit = function(event){
+var formSubmit = function (event) {
     event.preventDefault();
 
     var cityName = cityNameEl.value.trim();
-    if(cityName) {
+    if (cityName) {
         geoData(cityName);
         console.log(cityName)
         cityHistory.push(cityName)
@@ -27,16 +27,16 @@ var formSubmit = function(event){
 function geoData() {
     var cityName = document.getElementById('cityName');
 
-    var geoUrl = "http://api.openweathermap.org/data/2.5/weather?q=" + cityNameEl.value + "&appid=" + apiKey
+    var geoUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + cityNameEl.value + "&appid=" + apiKey
 
-    fetch(geoUrl) 
-        .then(function(response){
+    fetch(geoUrl)
+        .then(function (response) {
             if (response.ok) {
-                response.json().then(function(data){
+                response.json().then(function (data) {
                     cityWeatherData = data;
 
                     var latitude = cityWeatherData.coord.lat;
-                    var longtitude =cityWeatherData.coord.lon;
+                    var longtitude = cityWeatherData.coord.lon;
                     console.log(latitude, longtitude)
                     getCityWeatherData(latitude, longtitude);
                 })
@@ -44,104 +44,93 @@ function geoData() {
                 alert("Error:" + response.statusText);
             }
         })
-       .catch(function(error){
-           alert("Did not get a respnse");
-       });
+        .catch(function (error) {
+            alert("Did not get a respnse");
+        });
 };
 
-function getCityWeatherData(latitude, longtitude){
-  var oneCallUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + latitude + "&lon=" + longtitude + "&exclude=alerts,minutely,hourly&appid=" +apiKey
+function weatherConditionIcon(iconCode) {
+    var iconUrl = "https://openweathermap.org/img/wn/" + iconCode + "@2x.png";
+    return iconUrl;
+}
 
-  fetch(oneCallUrl)
-    .then(function(response){
-        return response.json();
-    })
-    .then(function(data){
-        console.log(data);
-        renderCityForecast(data);
-        renderFiveDayForecast(data);
-    })
-    
+function getCityWeatherData(latitude, longtitude) {
+    var oneCallUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + latitude + "&lon=" + longtitude + "&exclude=alerts,minutely,hourly&appid=" + apiKey
+
+    fetch(oneCallUrl)
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+            console.log(data);
+            renderCityForecast(data);
+            renderFiveDayForecast(data);
+        })
+
     var uviIndexColor = " "
 
-    var renderCityForecast = function (cityData){
+    var renderCityForecast = function (cityData) {
+
+        var iconUrl = weatherConditionIcon(cityData.current.weather[0].icon);
+
+        if (cityData.current.uvi <= 2) {
+            uviIndexColor = "success"
+        } else if (cityData.current.uvi <= 5) {
+            uviIndexColor = "warning"
+        } else if (cityData.current.uvi <= 7) {
+            uviIndexColor = "#fd7e14"
+        } else if (cityData.current.uvi <= 10) {
+            uviIndexColor = "danger"
+        } else if (cityData.current.uvi > 10) {
+            uviIndexColor = "#6f42c1"
+        }
+
         forecast = `<div class="p-1 m-1 border border-dark rounded">
-        <h3>${cityNameEl.value + " (" + moment.unix(cityData.current.dt).format("MM/DD/YYYY")})</h3>
-        <p>${"Temp: " + cityData.current.temp + "°F"}</p>
-        <p>${"Wind: " + cityData.current.wind_speed+ " MPH"}</p>
-        <p>${"Humidity: " + cityData.current.humidity + "%"}</p>
-        <p class = "bg-${uviIndexColor}">${"UV Index: " + cityData.current.uvi}</p>
+            <h3 class = "p-1 m-1">${cityNameEl.value + " (" + moment.unix(cityData.current.dt).format("MM/DD/YYYY")}) <img src = '${iconUrl}' alt="${cityData.current.weather[0].description}"/></h3>
+            <p class = "p-1 m-1">${"Temp: " + cityData.current.temp + "°F"}</p>
+            <p class = "p-1 m-1">${"Wind: " + cityData.current.wind_speed + " MPH"}</p>
+            <p class = "p-1 m-1">${"Humidity: " + cityData.current.humidity + "%"}</p>
+            <p class = "p-1 m-1"> UV Index:  <span class="bg-${uviIndexColor} rounded p-2 m-2">${cityData.current.uvi}<span></p>
         </div>`
 
         cityForecast.innerHTML = forecast
-        
+
         console.log(cityNameEl.value);
         console.log(moment.unix(cityData.current.dt).format("MM/DD/YYYY"));
-        console.log("Current Temperature: " + cityData.current.temp + "°F");  
-        console.log("Current Windspeed: " + cityData.current.wind_speed + "MPH");  
-        console.log("Current Humidity: " + cityData.current.humidity + "%");  
-        console.log("Current UVI Index: " + cityData.current.uvi);  
-        
-        if (cityData.current.uvi <=2){
-            uviIndexColor = "#008000"
-        } else if (cityData.current.uvi <=5){
-            uviIndexColor = "warning"
-        }else if (cityData.current.uvi <=7){
-            uviIndexColor = "#ffa500"
-        } else if (cityData.current.uvi <=10){
-            uviIndexColor = "danger"
-        } else if (cityData.current.uvi >10){
-            uviIndexColor = "#800080"
-        }
+        console.log("Current Temperature: " + cityData.current.temp + "°F");
+        console.log("Current Windspeed: " + cityData.current.wind_speed + "MPH");
+        console.log("Current Humidity: " + cityData.current.humidity + "%");
+        console.log("Current UVI Index: " + cityData.current.uvi);
+        console.log("Icon description: " + cityData.current.weather[0].description);
+
         cityNameEl.value = " ";
     };
 
     var renderFiveDayForecast = function (cityData) {
+        var DailyForecastHTML = " ";
+
+        for (i = 1; i < 6; i++) {
+            var iconUrl = weatherConditionIcon(cityData.daily[i].weather[0].icon)
+
+
+            DailyForecastHTML += `
+                <div class = "p-1 m-1 d-flex flex-column" style = "${cardBackground}">
+                    <h5 class = "p-1 m-1">${moment.unix(cityData.daily[i].dt).format("MM/DD/YYYY")}</h5>
+                    <img src = '${iconUrl}' alt="${cityData.daily[i].weather[0].description}"/>
+                    <p class = "p-1 m-1">${"Temp: " + cityData.daily[i].temp.day + "°F"}</p>
+                    <p class = "p-1 m-1">${"Wind: " + cityData.daily[i].wind_speed + " MPH"}</p>
+                    <p class = "p-1 m-1"> ${"Humidity: " + cityData.daily[i].humidity + "%"}</p>
+                </div>
+            ` ;
+        }
+
+
         var weekForecast = `
-        <h3 class = "text-dark">5-Day Forecast:</h3>
-
-        <div style = "${flexboxDisplay}">
-
-            <div class = "p-1 m-1" style = "${cardBackground}">
-                <h5>${moment.unix(cityData.daily[1].dt).format("MM/DD/YYYY")}</h5>
-                <p>${"Temp: " + cityData.daily[1].temp.day + "°F"}</p>
-                <p>${"Wind: " + cityData.daily[1].wind_speed+ " MPH"}</p>
-                <p>${"Humidity: " + cityData.daily[1].humidity + "%"}</p>
-                <p class = "bg-${uviIndexColor}">${"UV Index: " + cityData.daily[1].uvi}</p>
-            </div>
-
-            <div class = "p-1 m-1" style = "${cardBackground}">
-                <h5>${moment.unix(cityData.daily[2].dt).format("MM/DD/YYYY")}</h5>
-                <p>${"Temp: " + cityData.daily[2].temp.day + "°F"}</p>
-                <p>${"Wind: " + cityData.daily[2].wind_speed+ " MPH"}</p>
-                <p>${"Humidity: " + cityData.daily[2].humidity + "%"}</p>
-                <p class = "bg-${uviIndexColor}">${"UV Index: " + cityData.daily[2].uvi}</p>
-            </div>
-
-            <div class = "p-1 m-1" style = "${cardBackground}">
-                <h5>${moment.unix(cityData.daily[3].dt).format("MM/DD/YYYY")}</h5>
-                <p>${"Temp: " + cityData.daily[3].temp.day + "°F"}</p>
-                <p>${"Wind: " + cityData.daily[3].wind_speed+ " MPH"}</p>
-                <p>${"Humidity: " + cityData.daily[3].humidity + "%"}</p>
-                <p class = "bg-${uviIndexColor}">${"UV Index: " + cityData.daily[3].uvi}</p>
-            </div>
-
-            <div class = "p-1 m-1" style = "${cardBackground}">
-                <h5>${moment.unix(cityData.daily[4].dt).format("MM/DD/YYYY")}</h5>
-                <p>${"Temp: " + cityData.daily[4].temp.day + "°F"}</p>
-                <p>${"Wind: " + cityData.daily[4].wind_speed+ " MPH"}</p>
-                <p>${"Humidity: " + cityData.daily[4].humidity + "%"}</p>
-                <p class = "bg-${uviIndexColor}">${"UV Index: " + cityData.daily[1].uvi}</p>
-            </div>
-
-            <div class = "p-1 m-1" style = "${cardBackground}">
-                <h5>${moment.unix(cityData.daily[5].dt).format("MM/DD/YYYY")}</h5>
-                <p>${"Temp: " + cityData.daily[5].temp.day + "°F"}</p>
-                <p>${"Wind: " + cityData.daily[5].wind_speed+ " MPH"}</p>
-                <p>${"Humidity: " + cityData.daily[5].humidity + "%"}</p>
-                <p class = "bg-${uviIndexColor}">${"UV Index: " + cityData.daily[5].uvi}</p>
-            </div>
-        
+        <div>
+            <h3 style = "text-dark"> 5-Day Forecast:</h3>
+            <div class = "d-flex flex-row justify-content-between">
+                    ${DailyForecastHTML}      
+            </div>   
         </div>
         `
 
