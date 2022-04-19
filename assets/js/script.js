@@ -23,7 +23,7 @@ var formSubmit = function (event) {
     }
 }
 
-
+// function to call on api to get geo location data based on the user input for city search
 function geoData() {
     var cityName = document.getElementById('cityName');
 
@@ -49,11 +49,13 @@ function geoData() {
         });
 };
 
+//function to get icon url from iconCode
 function weatherConditionIcon(iconCode) {
     var iconUrl = "https://openweathermap.org/img/wn/" + iconCode + "@2x.png";
     return iconUrl;
 }
 
+// function to get api weather data from the latitude and longitude received from geo data
 function getCityWeatherData(latitude, longtitude) {
     var oneCallUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=" + latitude + "&lon=" + longtitude + "&exclude=alerts,minutely,hourly&appid=" + apiKey
 
@@ -72,7 +74,7 @@ function getCityWeatherData(latitude, longtitude) {
     var renderCityForecast = function (cityData) {
 
         var iconUrl = weatherConditionIcon(cityData.current.weather[0].icon);
-
+        // condition statement for UV index.  UV index background color is determined by the uv scale.
         if (cityData.current.uvi <= 2) {
             uviIndexColor = "success"
         } else if (cityData.current.uvi <= 5) {
@@ -84,7 +86,7 @@ function getCityWeatherData(latitude, longtitude) {
         } else if (cityData.current.uvi > 10) {
             uviIndexColor = "#6f42c1"
         }
-
+        // this part of the code uses api weather data and builds the html section of the current weather conditions of a city.
         forecast = `<div class="p-1 m-1 border border-dark rounded">
             <h3 class = "p-1 m-1">${cityNameEl.value + " (" + moment.unix(cityData.current.dt).format("MM/DD/YYYY")}) <img src = '${iconUrl}' alt="${cityData.current.weather[0].description}"/></h3>
             <p class = "p-1 m-1">${"Temp: " + cityData.current.temp + "°F"}</p>
@@ -109,6 +111,8 @@ function getCityWeatherData(latitude, longtitude) {
     var renderFiveDayForecast = function (cityData) {
         var DailyForecastHTML = " ";
 
+        // Fore loop to generate forecast for 5 days
+
         for (i = 1; i < 6; i++) {
             var iconUrl = weatherConditionIcon(cityData.daily[i].weather[0].icon)
 
@@ -124,7 +128,7 @@ function getCityWeatherData(latitude, longtitude) {
             ` ;
         }
 
-
+        // displaying 5 day forecast to html
         var weekForecast = `
         <div>
             <h3 style = "text-dark"> 5-Day Forecast:</h3>
